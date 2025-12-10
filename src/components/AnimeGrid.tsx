@@ -2,16 +2,19 @@ import { Card, CardContent } from "@/components/ui/card"
 import { Skeleton } from "@/components/ui/skeleton"
 import { type Anime } from "@/services/animeApi"
 
+type LayoutMode = 'grid' | 'stack'
+
 interface AnimeGridProps {
   anime: Anime[]
   loading?: boolean
+  layout?: LayoutMode
 }
 
-export function AnimeGrid({ anime, loading }: AnimeGridProps) {
+export function AnimeGrid({ anime, loading, layout = 'grid' }: AnimeGridProps) {
   if (loading) {
     return (
-      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4 p-4">
-        {Array.from({ length: 12 }).map((_, i) => (
+      <div className="grid grid-cols-5 gap-4 p-4">
+        {Array.from({ length: 25 }).map((_, i) => (
           <Card key={i} className="overflow-hidden bg-card border-border">
             <Skeleton className="w-full aspect-[2/3]" />
             <CardContent className="p-3">
@@ -25,15 +28,15 @@ export function AnimeGrid({ anime, loading }: AnimeGridProps) {
   }
 
   return (
-    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4 p-4">
+    <div className="grid grid-cols-5 gap-4 p-4">
       {anime.map((item) => (
         <Card
-          key={item.id}
+          key={item.mal_id}
           className="overflow-hidden bg-card border-border hover:shadow-lg transition-shadow cursor-pointer group"
         >
           <div className="relative aspect-[2/3] overflow-hidden">
             <img
-              src={item.thumb || item.image}
+              src={item.images.jpg.image_url || item.images.webp.image_url}
               alt={item.title}
               className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
               onError={(e) => {
@@ -47,9 +50,13 @@ export function AnimeGrid({ anime, loading }: AnimeGridProps) {
               {item.title}
             </h3>
             <div className="flex items-center gap-2 text-xs text-muted-foreground">
-              <span className="capitalize">{item.type}</span>
+              <span className="capitalize">{item.type ?? 'Unknown'}</span>
               <span>•</span>
-              <span>{item.episodes} {item.episodes === 1 ? 'ep' : 'eps'}</span>
+              <span>
+                {item.episodes ?? '?'}
+                {' '}
+                {(item.episodes ?? 0) === 1 ? 'ep' : 'eps'}
+              </span>
             </div>
           </CardContent>
         </Card>

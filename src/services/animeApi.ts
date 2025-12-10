@@ -1,69 +1,135 @@
 import axios from 'axios';
 
-const BASE_URL = 'https://anime-db.p.rapidapi.com/anime';
+// Jikan v4 base URL (see `/anime` in the docs: https://docs.api.jikan.moe/)
+const BASE_URL = 'https://api.jikan.moe/v4';
 
-export interface AnimeApiParams {
-  page?: string;
-  size?: string;
-  search?: string;
-  genres?: string;
-  sortBy?: string;
-  sortOrder?: 'asc' | 'desc';
+export interface AnimeImagesFormat {
+  image_url: string;
+  small_image_url: string;
+  large_image_url: string;
+}
+
+export interface AnimeImages {
+  jpg: AnimeImagesFormat;
+  webp: AnimeImagesFormat;
+}
+
+export interface AnimeTitle {
+  type: string;
+  title: string;
+}
+
+export interface AnimeDateProp {
+  day: number | null;
+  month: number | null;
+  year: number | null;
+}
+
+export interface AnimeAiredProp {
+  from: AnimeDateProp;
+  to: AnimeDateProp;
+  string: string;
+}
+
+export interface AnimeAired {
+  from: string | null;
+  to: string | null;
+  prop: AnimeAiredProp;
+}
+
+export interface AnimeTrailer {
+  youtube_id: string | null;
+  url: string | null;
+  embed_url: string | null;
+}
+
+export interface AnimeEntityRef {
+  mal_id: number;
+  type: string;
+  name: string;
+  url: string;
 }
 
 export interface Anime {
-  __v?: number;
-  alternativeTitles: string[];
-  genres: string[];
-  hasRanking: boolean;
-  image: string;
-  link: string;
-  ranking: number;
-  thumb: string;
+  mal_id: number;
+  url: string;
+  images: AnimeImages;
+  trailer: AnimeTrailer;
+  approved: boolean;
+  titles: AnimeTitle[];
   title: string;
-  episodes: number;
-  hasEpisode: boolean;
-  status: string;
-  synopsis?: string;
-  type: string;
-  updatedAt: string;
-  workerId: string;
-  score: number;
-  id: string;
-  _id: string;
+  title_english: string | null;
+  title_japanese: string | null;
+  title_synonyms: string[];
+  type: string | null;
+  source: string | null;
+  episodes: number | null;
+  status: string | null;
+  airing: boolean;
+  aired: AnimeAired;
+  duration: string;
+  rating: string | null;
+  score: number | null;
+  scored_by: number | null;
+  rank: number | null;
+  popularity: number;
+  members: number;
+  favorites: number;
+  synopsis: string | null;
+  background: string | null;
+  season: string | null;
+  year: number | null;
+  broadcast: {
+    day: string | null;
+    time: string | null;
+    timezone: string | null;
+    string: string | null;
+  };
+  producers: AnimeEntityRef[];
+  licensors: AnimeEntityRef[];
+  studios: AnimeEntityRef[];
+  genres: AnimeEntityRef[];
+  explicit_genres: AnimeEntityRef[];
+  themes: AnimeEntityRef[];
+  demographics: AnimeEntityRef[];
 }
 
-export interface AnimeApiMeta {
-  page: number;
-  size: number;
-  totalData: number;
-  totalPage: number;
+export interface AnimeApiPaginationItems {
+  count: number;
+  total: number;
+  per_page: number;
+}
+
+export interface AnimeApiPagination {
+  last_visible_page: number;
+  has_next_page: boolean;
+  current_page: number;
+  items: AnimeApiPaginationItems;
 }
 
 export interface AnimeApiResponse {
   data: Anime[];
-  meta: AnimeApiMeta;
+  pagination: AnimeApiPagination;
+}
+
+export interface AnimeApiParams {
+  page?: number;
+  limit?: number;
+  sfw?: boolean;
 }
 
 export const fetchAnime = async (params: AnimeApiParams = {}): Promise<AnimeApiResponse> => {
-  const defaultParams = {
-    page: '1',
-    size: '10',
-    search: 'Fullmetal',
-    genres: 'Fantasy,Drama',
-    sortBy: 'ranking',
-    sortOrder: 'asc' as const,
+  const defaultParams: Required<Pick<AnimeApiParams, 'page' | 'limit' | 'sfw'>> = {
+    page: 1,
+    limit: 24,
+    sfw: true,
   };
 
   const requestParams = { ...defaultParams, ...params };
 
   try {
-    const response = await axios.get<AnimeApiResponse>(BASE_URL, {
+    const response = await axios.get<AnimeApiResponse>(`${BASE_URL}/anime`, {
       params: requestParams,
-      headers: {
-        'x-rapidapi-key': 'b5d2e56f88msh8e71e045d48599dp1548cbjsn41dfd1e4ecf6',
-        'x-rapidapi-host': 'anime-db.p.rapidapi.com',
-      },
     });
 
     return response.data;

@@ -22,7 +22,7 @@ export function initDatadog() {
         sessionSampleRate:  100,
         sessionReplaySampleRate: 20,
         defaultPrivacyLevel: 'mask-user-input',
-        plugins: [reactPlugin({ router: true })],
+        plugins: [reactPlugin({ router: false })],
     })
 
     // Start session replay
@@ -30,18 +30,36 @@ export function initDatadog() {
 
     // Add a test action to verify it's working
     datadogRum.addAction('app_initialized', {
-      service: 'test',
-      env: 'local',
+      service: 'prod',
+      env: 'test',
     })
 
     console.log('Datadog RUM initialized successfully', {
-      service: 'test',
-      env: 'local',
+      service: 'prod',
+      env: 'test',
       applicationId: '127e7f9d-d24f-4a5d-b22d-bb4ca4abcd85',
       site: 'ap1.datadoghq.com',
     })
   } catch (error) {
     console.error('Failed to initialize Datadog RUM:', error)
+  }
+}
+
+// Helper function to safely report errors to Datadog
+export function reportErrorToDatadog(error: Error, context?: Record<string, string>) {
+  try {
+    const initConfig = datadogRum.getInitConfiguration()
+    if (initConfig) {
+      datadogRum.addError(error, context)
+      console.log('Error reported to Datadog:', error.message, context)
+      return true
+    } else {
+      console.warn('Datadog not initialized, cannot report error')
+      return false
+    }
+  } catch (err) {
+    console.error('Failed to report error to Datadog:', err)
+    return false
   }
 }
 
