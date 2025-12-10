@@ -9,7 +9,7 @@ function App() {
   const [loading, setLoading] = useState(true)
   const [loadingMore, setLoadingMore] = useState(false)
   const [error, setError] = useState<string | null>(null)
-  const [page, setPage] = useState(1)
+  const [page, _setPage] = useState(1)
 
   useEffect(() => {
     const loadAnime = async () => {
@@ -36,8 +36,8 @@ function App() {
   const handleLoadMore = async () => {
     setLoadingMore(true)
     try {
-      const nextPage = page + 1
-      // Bug: page state is never updated, so it always stays at 1
+      // Bug: nextPage is calculated but never used, and page state is never updated
+      // const nextPage = page + 1
       // setPage(nextPage)
       
       const data = await fetchAnime({

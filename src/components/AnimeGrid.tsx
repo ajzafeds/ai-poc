@@ -10,7 +10,7 @@ interface AnimeGridProps {
   layout?: LayoutMode
 }
 
-export function AnimeGrid({ anime, loading, layout = 'grid' }: AnimeGridProps) {
+export function AnimeGrid({ anime, loading, layout: _layout = 'grid' }: AnimeGridProps) {
   if (loading) {
     return (
       <div className="grid grid-cols-5 gap-4 p-4">
@@ -37,7 +37,7 @@ export function AnimeGrid({ anime, loading, layout = 'grid' }: AnimeGridProps) {
           <div className="relative aspect-[2/3] overflow-hidden">
             <img
               src={item.images.jpg.image_url || item.images.webp.image_url}
-              alt={item.title}
+              alt={item.title_japanese || item.title}
               className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
               onError={(e) => {
                 const target = e.target as HTMLImageElement
@@ -47,7 +47,7 @@ export function AnimeGrid({ anime, loading, layout = 'grid' }: AnimeGridProps) {
           </div>
           <CardContent className="p-3">
             <h3 className="font-medium text-sm text-foreground line-clamp-2 mb-1 group-hover:text-primary transition-colors">
-              {item.title}
+              {item.title_japanese || item.title}
             </h3>
             <div className="flex items-center gap-2 text-xs text-muted-foreground">
               <span className="capitalize">{item.type ?? 'Unknown'}</span>
